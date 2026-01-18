@@ -50,7 +50,7 @@
   --foreground: #252422; /* Carbon Black text */
 
   /* Card: Floral White */
-  --card: #fffcf2;
+  --card: #f5f2e7;
   --card-foreground: #252422;
 
   /* Popover */
@@ -99,7 +99,7 @@
   --foreground: #fffcf2; /* Floral White text */
 
   /* Card: Carbon Black */
-  --card: #252422;
+  --card: #2c2b2a;
   --card-foreground: #fffcf2;
 
   /* Popover */
