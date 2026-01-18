@@ -10,7 +10,8 @@ const cardVariants = cva(
     variants: {
       // 2. Add a 'width' variant to control size
       width: {
-        sm: "w-full max-w-sm", // Your original default (approx 384px)
+        xs: "w-full md:max-w-xs",
+        sm: "w-full md:max-w-sm",
         md: "w-full max-w-md", // Approx 448px
         lg: "w-full max-w-lg", // Approx 512px
         xl: "w-full max-w-xl", // Approx 576px
@@ -21,7 +22,7 @@ const cardVariants = cva(
       // 3. Add a 'size' variant for padding/spacing
       size: {
         default: "p-8 space-y-6 rounded-xl", // Matches your Auth Card style
-        sm: "p-4 space-y-3 rounded-lg text-sm",
+        sm: "p-4 space-y-3 rounded-lg ",
         none: "p-0 rounded-none",
       },
     },
@@ -29,7 +30,7 @@ const cardVariants = cva(
       width: "sm", // Default to small
       size: "default", // Default to standard padding
     },
-  }
+  },
 );
 
 interface CardProps extends React.ComponentProps<"div">, VariantProps<typeof cardVariants> {}
