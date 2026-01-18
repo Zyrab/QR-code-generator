@@ -1,6 +1,18 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, type User } from 'firebase/auth';
-import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  query, 
+  where, 
+  getDocs, 
+  deleteDoc, 
+  doc, 
+  updateDoc, 
+  serverTimestamp,
+  Timestamp 
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -28,18 +40,45 @@ export const loginGoogle = async () => {
 
 export const logoutUser = () => signOut(auth);
 
-// --- History & Saving Logic ---
+// --- Extended Saving Logic ---
 
-// Updated to accept an 'options' object for styles
-export const saveQrToHistory = async (user: User | null, text: string, logoBase64: string | null = null, options: any = {}) => {
-  if (!user) return;
+export interface QRCodeData {
+  type: 'url' | 'wifi' | 'vcard' | 'text'; 
+  content: {
+    url?: string;
+    text?: string;
+    ssid?: string;
+  };
+  design: {
+    color: string;
+    bgColor: string;
+    style: string;
+    logoStyle: string;
+    eyeFrame: string;
+    eyeBall: string;
+    logo: string | null; 
+  };
+  name: string;
+}
+
+export const saveToDashboard = async (user: User | null, data: QRCodeData) => {
+  if (!user) throw new Error("User not authenticated");
+
+  // SAFETY CHECK: Firestore Document Size Limit is 1MB
+  if (data.design.logo && data.design.logo.length > 800000) {
+    throw new Error("Logo image is too large for database storage. Please resize below 500KB.");
+  }
+
   try {
     await addDoc(collection(db, "qrcodes"), {
       uid: user.uid,
-      text: text,
-      logoBase64: logoBase64,
-      ...options, // Spread style options (color, style, logoStyle)
-      createdAt: new Date().toISOString(),
+      type: data.type,
+      content: data.content,
+      design: data.design,
+      name: data.name || "Untitled QR",
+      // serverTimestamp() tells the server to insert the time IT receives the request
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -47,13 +86,15 @@ export const saveQrToHistory = async (user: User | null, text: string, logoBase6
   }
 };
 
-// NEW: Update an existing QR code
-export const updateQrCode = async (id: string, data: any) => {
+export const updateQrCode = async (id: string, data: Partial<QRCodeData>) => {
   try {
     const docRef = doc(db, "qrcodes", id);
-    // Remove undefined fields
-    const cleanData = JSON.parse(JSON.stringify(data));
-    await updateDoc(docRef, cleanData);
+    const payload = {
+      ...data,
+      // Only update the modified time
+      updatedAt: serverTimestamp()
+    };
+    await updateDoc(docRef, payload);
   } catch (e) {
     console.error("Error updating document: ", e);
     throw e;
@@ -74,7 +115,19 @@ export const fetchHistory = async (user: User | null) => {
   try {
     const q = query(collection(db, "qrcodes"), where("uid", "==", user.uid));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    
+    // Convert Firestore Timestamps back to simple Strings for the UI
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return { 
+        id: doc.id, 
+        ...data,
+        // Helper: Check if it's a Firestore Timestamp (has .toDate) and convert to ISO string
+        // This handles cases where data might still be a string (legacy data) or a Timestamp (new data)
+        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+        updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+      };
+    });
   } catch (e) {
     console.error("Error fetching history: ", e);
     return [];
