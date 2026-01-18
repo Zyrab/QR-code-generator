@@ -41,7 +41,7 @@ export function HeaderGroup({
   const { header: headerSize, sub: subSize } = sizes[size];
 
   return (
-    <div className={cn("space-y-2 max-w-240 flex flex-col items-center text-center", className)}>
+    <div className={cn("max-w-240 flex flex-col items-center text-center gap-2", className)}>
       <Tag className={cn(headerSize, "text-foreground", headerClassName)}>{header}</Tag>
 
       {subheading && (
@@ -50,7 +50,7 @@ export function HeaderGroup({
         </div>
       )}
 
-      {children && <div className="pt-2">{children}</div>}
+      {children && <div>{children}</div>}
     </div>
   );
 }
