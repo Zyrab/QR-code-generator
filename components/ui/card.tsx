@@ -21,8 +21,8 @@ const cardVariants = cva(
       },
       // 3. Add a 'size' variant for padding/spacing
       size: {
-        default: "p-8 space-y-6 rounded-xl", // Matches your Auth Card style
-        sm: "p-4 space-y-3 rounded-lg ",
+        default: "p-8  rounded-xl", // Matches your Auth Card style
+        sm: "p-4 rounded-lg ",
         none: "p-0 rounded-none",
       },
     },
