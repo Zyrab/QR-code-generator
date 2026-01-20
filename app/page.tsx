@@ -1,21 +1,24 @@
 "use client";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import Section from "@/components/layout/section";
 import Generator from "./generator/page";
 import { HeaderGroup } from "@/components/elements/heading-group";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import PricingSection from "@/components/views/pricing-section";
 import ExamplesSection from "@/components/views/examples-section";
-
-export default function Landing() {
+import { getLocale } from "@/content/getLocale";
+import { ActionKey, actions } from "@/lib/actions";
+import AccordionGroup from "@/components/elements/accordion-group";
+export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
   const generatorRef = useRef<HTMLDivElement>(null);
+  const t = getLocale(locale, "landing");
+  const router = useRouter();
 
-  // 2. The function that does the scrolling
-  const scrollToGenerator = () => {
-    generatorRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
+  const handleAction = (action: ActionKey) => {
+    actions[action]?.({
+      generatorRef,
+      router,
     });
   };
   return (
@@ -25,35 +28,33 @@ export default function Landing() {
       </div>
       <Section bg="bg-muted">
         <div>
-          <HeaderGroup
-            tag="h2"
-            header="What Is a QR Code?"
-            subheading={[
-              "A QR code is a type of barcode that opens a link when scanned with a phone camera. It's commonly used to share websites, videos, menus, forms, and contact pages. especially on printed materials.",
-              "Unlike short links, QR codes work instantly and don’t require typing.",
-            ]}
-          />
+          <HeaderGroup header={t.whatIsQr.titile} subheading={t.whatIsQr.subtitle} />
         </div>
       </Section>
       <Section>
-        <HeaderGroup tag="h2" header="Static vs Dynamic QR Codes" />
-        <p className="text-foreground text-md space-y-2 max-w-240 text-center">
-          Many “free” QR generators use dynamic QR codes by default, which stop working unless you pay. This tool gives
-          you static QR codes upfront, with no hidden expiration.
-        </p>
+        <HeaderGroup header={t.staticVsDynamic.titile} />
+        <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.staticVsDynamic.description}</p>
       </Section>
       <Section>
-        <HeaderGroup
-          tag="h2"
-          header="Not sure which one you need?"
-          subheading=" tart with a free static QR code, upgrade only if you need more control."
-        />
-        <Button onClick={scrollToGenerator} size="lg">
-          Generate a free QR code
+        <HeaderGroup header={t.unsure.titile} subheading={t.unsure.subtitle} />
+        <Button onClick={() => handleAction(t.unsure.button.action)} size="lg">
+          {t.unsure.button.label}
         </Button>
       </Section>
-      <ExamplesSection />
-      <PricingSection />
+      <ExamplesSection t={t.examples} />
+      <PricingSection t={t.pricing} onAction={handleAction} />
+      <Section bg="bg-muted">
+        <HeaderGroup header={t.usefullness.title} />
+        <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.usefullness.note}</p>
+      </Section>
+      <Section>
+        <HeaderGroup header={t.faq.title} />
+        <AccordionGroup items={t.faq.content} />
+      </Section>
+      <Section>
+        <HeaderGroup header={t.why.title} subheading={t.why.subtitle} />
+        <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.why.notice}</p>
+      </Section>
     </>
   );
 }
