@@ -7,7 +7,6 @@ import {
   Trash2,
   Copy,
   Calendar,
-  Link as LinkIcon,
   Loader2,
   ScanQrCode,
   Link2,
@@ -16,6 +15,8 @@ import {
   CornerDownRight,
   Palette,
   ChartLine,
+  Type,
+  Wifi,
 } from "lucide-react";
 
 // UI Components
@@ -30,14 +31,15 @@ import { Input } from "@/components/ui/input";
 // Logic & Types
 import QRCodeRenderer from "../generator/renderer";
 import { useQRDownload } from "@/hooks/use-qr-download";
-import { QRCodeItem, useQR } from "@/context/qr-context";
+import { useQR } from "@/context/qr-context";
 import { useQRCodeGenerator } from "@/hooks/use-qr-generator";
+import { QRContent, QRDocument } from "@/types/qr";
 
 interface DashboardItemProps {
-  item: QRCodeItem;
+  item: QRDocument;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
-  onDuplicate: (item: QRCodeItem) => void;
+  onDuplicate: (item: QRDocument) => void;
 }
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -55,64 +57,88 @@ export default function DashboardItem({ item, onEdit, onDelete, onDuplicate }: D
 
   const { updateQr } = useQR();
 
-  // Feature flag for dynamic URLs (disabled by default as requested)
+  // Feature flag for dynamic URLs
   const isDynamic = false;
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const { downloadQrCode, isDownloading } = useQRDownload();
+  const contentCheckers: Record<QRContent["type"], (content: QRContent) => boolean> = {
+    url: (content) => (content.type === "url" ? content.url.trim() !== "" : false),
+    text: (content) => (content.type === "text" ? content.text.trim() !== "" : false),
+    wifi: (content) => (content.type === "wifi" ? content.ssid.trim() !== "" || content.password.trim() !== "" : false),
+  };
 
-  const { matrix } = useQRCodeGenerator(item.content.url || "");
+  // Determine if there is anything typed
+  const isContentFilled = contentCheckers[item.content.type](item.content);
+
+  const { matrix } = useQRCodeGenerator(item.content);
   const handleDownload = () => {
-    if (!item.content.url) return;
+    if (!isContentFilled) return;
     const fileName = item.name || "qr-code";
     downloadQrCode(svgRef, fileName, downloadFormat, downloadSize);
   };
   const formattedDate = useMemo(() => {
     return dateFormatter.format(new Date(item.createdAt));
   }, [item.createdAt]);
+  function renderContentBadges(content: QRDocument["content"]) {
+    switch (content.type) {
+      case "url":
+        return <Badge variant="ghost">{content.url}</Badge>;
+      case "text":
+        return <Badge variant="ghost">{content.text}</Badge>;
+      case "wifi":
+        return (
+          <>
+            <Badge variant="ghost">SSID: {content.ssid || "—"}</Badge>
+            <Badge variant="ghost">Password: {content.password || "—"}</Badge>
+          </>
+        );
+      default:
+        return null;
+    }
+  }
+
+  const typeIcon = {
+    url: <Link2 />,
+    text: <Type />,
+    wifi: <Wifi />,
+  };
 
   return (
-    <Card width="auto" size="sm" className="flex-row justify-between">
+    <Card width="auto" size="sm" className="gap-8 md:flex-row md:justify-between">
       {/* 1. Visual Preview Area */}
       <div className="gap-8 flex flex-row">
-        <div
-          className="w-35 h-35 p-2 transition-transform duration-300 group-hover:scale-105"
-          style={{
-            backgroundColor: item.design.bgColor === "transparent" ? "#ffffff" : item.design.bgColor,
-          }}
-        >
-          <QRCodeRenderer
-            matrix={matrix}
-            svgRef={svgRef}
-            size={200}
-            dotType={item.design.style}
-            eyeFrame={item.design.eyeFrame}
-            eyeBall={item.design.eyeBall}
-            bodyColor={item.design.color}
-            eyeColor={item.design.color}
-            bgColor={item.design.bgColor}
-            logoUrl={item.design.logo}
-          />
-        </div>
-        <div className="flex flex-col gap-5">
-          <Badge variant="secondary" className="w-full">
-            <Link2 />
-            {item.type.toUpperCase()}
-          </Badge>
-          {isDynamic ? (
-            <Badge>Dynamic</Badge>
-          ) : (
-            <Badge variant="secondary" className="w-full">
-              Static
+        <div className="flex flex-col gap-2 md:flex-row md:gap-5">
+          <div
+            className="w-30 h-30 p-2 transition-transform duration-300 group-hover:scale-105"
+            style={{
+              backgroundColor: item.design.bgColor === "transparent" ? "#ffffff" : item.design.bgColor,
+            }}
+          >
+            <QRCodeRenderer matrix={matrix} svgRef={svgRef} size={200} design={item.design} />
+          </div>
+          <div className="flex flex-row md:flex-col  md:pt-2 justify-between md:justify-start gap-3">
+            <Badge variant="secondary" className="md:w-full">
+              {typeIcon[item.content.type]}
+              {item.content.type.toUpperCase()}
             </Badge>
-          )}
-          {isDynamic && (
-            <Badge variant="secondary">
-              <ScanQrCode />
-              1552
-            </Badge>
-          )}
+
+            {isDynamic ? (
+              <Badge>Dynamic</Badge>
+            ) : (
+              <Badge variant="secondary" className="md:w-full">
+                Static
+              </Badge>
+            )}
+            {isDynamic && (
+              <Badge variant="secondary">
+                <ScanQrCode />
+                1552
+              </Badge>
+            )}
+          </div>
         </div>
+
         <div className="flex flex-col gap-5">
           {!isEditName ? (
             <HeaderGroup tag="h3" header={item.name || "Untitled QR"} className="flex-row items-start">
@@ -147,19 +173,16 @@ export default function DashboardItem({ item, onEdit, onDelete, onDuplicate }: D
               </Button>
             </div>
           )}
-          <Badge variant="ghost">
-            <CornerDownRight />
-            {item.content.url}
-          </Badge>
+          {renderContentBadges(item.content)}
           <Badge variant="ghost">
             <Calendar />
             {formattedDate}
           </Badge>
         </div>
       </div>
-      <div className="gap-8 flex flex-row">
+      <div className="gap-8 flex flex-col md:flex-row">
         <div className="flex flex-col justify-between">
-          <div className="flex flex-row gap-0.5">
+          <div className="flex flex-row gap-0.5 justify-between">
             <Button variant="ghost" size="lg" onClick={() => onEdit(item.id)}>
               <Palette />
             </Button>
@@ -193,7 +216,7 @@ export default function DashboardItem({ item, onEdit, onDelete, onDuplicate }: D
             ))}
           </RadioGroup>
         </div>
-        <div className="flex flex-col justify-between">
+        <div className="flex flex-col justify-between gap-8">
           <Slider
             value={[downloadSize]}
             onValueChange={(val: any) => setDownloadSize(val[0])}
