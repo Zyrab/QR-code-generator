@@ -59,12 +59,12 @@ export default function Header() {
             <>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut />
-                Log Out
+                <span className="hidden md:block">Log Out</span>
               </Button>
               <Link href="/dashboard">
                 <Button size="sm">
                   <LayoutDashboard />
-                  Dashboard
+                  <span className="hidden md:block">Dashboard</span>
                 </Button>
               </Link>
             </>
