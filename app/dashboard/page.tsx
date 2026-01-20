@@ -37,16 +37,16 @@ export default function DashboardGrid() {
     let items = [...qrCodes];
 
     // 1. Filter by Search
-    if (searchTerm) {
-      const lower = searchTerm.toLowerCase();
-      items = items.filter(
-        (item) => item.name.toLowerCase().includes(lower) || item.content.url?.toLowerCase().includes(lower),
-      );
-    }
+    // if (searchTerm) {
+    //   const lower = searchTerm.toLowerCase();
+    //   items = items.filter(
+    //     (item) => item.name.toLowerCase().includes(lower) || item.content.url?.toLowerCase().includes(lower),
+    //   );
+    // }
 
     // 2. Filter by Type
     if (filterType !== "all") {
-      items = items.filter((item) => item.type === filterType);
+      items = items.filter((item) => item.content.type === filterType);
     }
 
     // 3. Sort
@@ -88,7 +88,7 @@ export default function DashboardGrid() {
     <Section>
       {/* --- HEADER SECTION --- */}
       <div className="flex flex-col gap-4 w-full max-w-5xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">My QR Codes</h1>
             <p className="text-muted-foreground text-sm">Manage your saved QR codes.</p>
