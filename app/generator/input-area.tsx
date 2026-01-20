@@ -12,12 +12,12 @@ interface InputAreaProps {
 
 export default function InputArea({ content, name, onContentChange, onNameChange }: InputAreaProps) {
   return (
-    <div className="w-full flex flex-col gap-6 md:flex-row flex-wrap">
+    <div className="w-full flex flex-col gap-4 md:flex-row flex-wrap">
       {/* Always show QR Name */}
       <InputGroup
         label="QR Name (optional)"
         value={name}
-        onChange={onNameChange}
+        onChange={(e) => onNameChange(e)}
         placeholder="Only used if you sign in and save"
         className="flex-1"
       />

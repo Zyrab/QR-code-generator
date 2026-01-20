@@ -27,17 +27,14 @@ import { QRData, QRContent } from "@/types/qr";
 import Designer from "./designer";
 
 export default function Generator({ showHeader = false }: { showHeader: boolean }) {
-  const router = useRouter();
   const { user } = useAuth();
 
   // States
-  const [saving, setSaving] = useState(false);
   const [downloadSize, setDownloadSize] = useState(2000);
   const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg" | "svg">("png");
-
+  const isEditing = useRef<boolean>(false);
   // Reference to the SVG for downloading
   const svgRef = useRef<SVGSVGElement | null>(null);
-
   const [qrData, setQrData] = useState<QRData>({
     name: "",
     content: {
@@ -55,18 +52,39 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
     },
   });
 
+  const [draftContent, setDraftContent] = useState(qrData.content);
+  const [draftName, setDraftName] = useState(qrData.name);
+
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const { getQrById, updateQr } = useQR();
+  const { getQrById, updateQr, saveQr, loading } = useQR();
 
   useEffect(() => {
     if (id) {
       const data = getQrById(id);
       if (data) setQrData(data);
+      isEditing.current = true;
     }
   }, [id, getQrById]);
 
-  const { matrix } = useQRCodeGenerator(qrData.content);
+  const debouncedUpdate = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // later
+
+  useEffect(() => {
+    if (debouncedUpdate.current) {
+      clearTimeout(debouncedUpdate.current);
+    }
+    debouncedUpdate.current = setTimeout(() => {
+      setQrData((prev) => ({
+        ...prev,
+        content: draftContent,
+        name: draftName,
+      }));
+    }, 300); // wait 300ms after last keystroke
+  }, [draftContent, draftName]);
+
+  const { matrix } = useQRCodeGenerator(qrData.content, Boolean(qrData.design.logo));
   const { downloadQrCode, isDownloading } = useQRDownload();
 
   // Handlers
@@ -96,32 +114,21 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
     }
   };
 
-  const handleSave = async () => {
-    if (!user) {
-      router.push("/auth?mode=login");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      await saveToDashboard(user, qrData);
-      router.push("/dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Error saving. If you used a custom logo, it might be too large.");
-    } finally {
-      setSaving(false);
+  const handleSaveQr = async () => {
+    if (isEditing.current) {
+      if (id) await updateQr(id, qrData);
+    } else {
+      await saveQr(qrData);
     }
   };
+
   const onContentChange = (field: string, value: string) => {
-    setQrData((prev) => ({
-      ...prev,
-      content: { ...prev.content, [field]: value },
-    }));
+    setDraftContent((prev) => ({ ...prev, [field]: value }));
   };
 
-  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setQrData((prev) => ({ ...prev, name: e.target.value }));
+  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDraftName(e.target.value);
+  };
 
   const onDesignChange = (key: keyof QRData["design"], value: any) =>
     setQrData((prev) => ({ ...prev, design: { ...prev.design, [key]: value } }));
@@ -148,15 +155,15 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
       <div className="flex flex-col gap-4 w-full items-center md:items-stretch md:justify-center md:flex-row">
         <Card width="2xl">
           <InputArea
-            content={qrData.content}
-            name={qrData.name}
+            content={draftContent}
+            name={draftName}
             onContentChange={onContentChange}
             onNameChange={onNameChange}
           />
 
           <Designer design={qrData.design} onDesignChange={onDesignChange} />
 
-          <UploadLogo logo={qrData.design.logo} setFormData={setQrData} handleImageUpload={handleImageUpload} />
+          <UploadLogo logo={qrData.design.logo} setQrData={setQrData} handleImageUpload={handleImageUpload} />
         </Card>
         <Card width="sm">
           <div
@@ -171,7 +178,7 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
               </div>
             )}
 
-            <QRCodeRenderer matrix={matrix} svgRef={svgRef} size={1000} design={qrData.design} />
+            <QRCodeRenderer matrix={matrix} svgRef={svgRef} size={500} design={qrData.design} />
           </div>
 
           <Slider
@@ -197,8 +204,8 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
             Download
           </Button>
           {/* Save Action */}
-          <Button size="lg" variant="outline" disabled={!isContentFilled || saving} onClick={handleSave}>
-            {saving ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
+          <Button size="lg" variant="outline" disabled={!isContentFilled || loading} onClick={handleSaveQr}>
+            {loading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
             {user ? "Save to Dashboard" : "Sign in to Save"}
           </Button>
         </Card>

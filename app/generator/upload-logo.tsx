@@ -11,11 +11,11 @@ import Radios from "@/components/elements/radio-group";
 
 interface UploadLogoProps {
   logo?: string | null;
-  setFormData: (data: any) => void;
+  setQrData: (data: any) => void;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function UploadLogo({ logo, setFormData, handleImageUpload }: UploadLogoProps) {
+export default function UploadLogo({ logo, setQrData, handleImageUpload }: UploadLogoProps) {
   return (
     <div>
       <Label>Logo</Label>
@@ -39,7 +39,7 @@ export default function UploadLogo({ logo, setFormData, handleImageUpload }: Upl
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo} alt="Logo" className="h-12 w-12 object-contain bg-white rounded border border-border" />
             <button
-              onClick={() => setFormData((prev: any) => ({ ...prev, logo: null }))}
+              onClick={() => setQrData((prev: any) => ({ ...prev, design: { ...prev.design, logo: null } }))}
               className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <X size={12} />
