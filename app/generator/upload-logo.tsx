@@ -10,7 +10,7 @@ import Radios from "@/components/elements/radio-group";
 // We use a partial or specific pick here to ensure loose coupling
 
 interface UploadLogoProps {
-  logo: string | null;
+  logo?: string | null;
   setFormData: (data: any) => void;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }

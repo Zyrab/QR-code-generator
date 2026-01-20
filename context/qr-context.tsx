@@ -4,45 +4,24 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useAuth } from "@/context/auth-context"; // Assumes you have this from your auth setup
 import { fetchHistory, deleteQrCode as firebaseDelete, updateQrCode as firebaseUpdate } from "@/lib/firebase";
 
+import { QRDocument, QRData } from "@/types/qr";
 // Define the shape of a QR Code object (matching your Firestore structure)
-export interface QRCodeItem {
-  id: string;
-  uid: string;
-  name: string;
-  type: "url" | "wifi" | "vcard" | "text";
-  content: {
-    url?: string;
-    text?: string;
-    // add others as needed
-  };
-  design: {
-    color: string;
-    bgColor: string;
-    style: string;
-    logoStyle: string;
-    eyeFrame: string;
-    eyeBall: string;
-    logo: string | null;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface QRContextType {
-  qrCodes: QRCodeItem[];
+  qrCodes: QRDocument[];
   loading: boolean;
   error: string | null;
   refreshQRCodes: () => Promise<void>;
   deleteQr: (id: string) => Promise<void>;
-  updateQr: (id: string, data: Partial<QRCodeItem>) => Promise<void>;
-  getQrById: (id: string) => QRCodeItem | undefined;
+  updateQr: (id: string, data: Partial<QRData>) => Promise<void>;
+  getQrById: (id: string) => QRData | undefined;
 }
 
 const QRContext = createContext<QRContextType | undefined>(undefined);
 
 export function QRProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [qrCodes, setQrCodes] = useState<QRCodeItem[]>([]);
+  const [qrCodes, setQrCodes] = useState<QRDocument[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,7 +38,7 @@ export function QRProvider({ children }: { children: React.ReactNode }) {
       const data = await fetchHistory(user);
       // Ensure the data matches our type. fetchHistory returns `any[]` usually,
       // so we cast it or you can add stricter typing in firebase.ts
-      setQrCodes(data as QRCodeItem[]);
+      setQrCodes(data as QRDocument[]);
     } catch (err: any) {
       console.error("Failed to load QR codes", err);
       setError(err.message || "Failed to load history");
@@ -90,7 +69,7 @@ export function QRProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 3. Update Logic
-  const updateQr = async (id: string, updates: Partial<QRCodeItem>) => {
+  const updateQr = async (id: string, updates: Partial<QRData>) => {
     // Optimistic update
     setQrCodes((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
 

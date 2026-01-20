@@ -1,4 +1,4 @@
-type QRCodeMatrix = (number | boolean)[][];
+import { QRCodeMatrix } from "@/types/qr";
 
 interface ShapeProps {
   x: number;

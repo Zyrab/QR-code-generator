@@ -5,7 +5,7 @@ export const PREVIEW_MATRIX = [
   [0, 0, 1, 0, 1, 1], // split interaction
   [0, 1, 1, 1, 0, 0], // small cluster
   [1, 0, 1, 0, 1, 0], // vertical hints
-  [1, 0, 1, 0, 1, 0],
+  [1, 1, 0, 0, 1, 0],
 ];
 
 export function BodyPreview({ type }: { type: string }) {

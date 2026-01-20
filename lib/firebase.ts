@@ -41,27 +41,9 @@ export const loginGoogle = async () => {
 export const logoutUser = () => signOut(auth);
 
 // --- Extended Saving Logic ---
+import { QRData } from '@/types/qr';
 
-export interface QRCodeData {
-  type: 'url' | 'wifi' | 'vcard' | 'text'; 
-  content: {
-    url?: string;
-    text?: string;
-    ssid?: string;
-  };
-  design: {
-    color: string;
-    bgColor: string;
-    style: string;
-    logoStyle: string;
-    eyeFrame: string;
-    eyeBall: string;
-    logo: string | null; 
-  };
-  name: string;
-}
-
-export const saveToDashboard = async (user: User | null, data: QRCodeData) => {
+export const saveToDashboard = async (user: User | null, data: QRData) => {
   if (!user) throw new Error("User not authenticated");
 
   // SAFETY CHECK: Firestore Document Size Limit is 1MB
@@ -72,11 +54,9 @@ export const saveToDashboard = async (user: User | null, data: QRCodeData) => {
   try {
     await addDoc(collection(db, "qrcodes"), {
       uid: user.uid,
-      type: data.type,
+      name: data.name || "Untitled QR",
       content: data.content,
       design: data.design,
-      name: data.name || "Untitled QR",
-      // serverTimestamp() tells the server to insert the time IT receives the request
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -86,7 +66,7 @@ export const saveToDashboard = async (user: User | null, data: QRCodeData) => {
   }
 };
 
-export const updateQrCode = async (id: string, data: Partial<QRCodeData>) => {
+export const updateQrCode = async (id: string, data: Partial<QRData>) => {
   try {
     const docRef = doc(db, "qrcodes", id);
     const payload = {
