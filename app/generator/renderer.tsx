@@ -1,10 +1,7 @@
 import React, { useMemo } from "react";
 import { ShapeRenderers, FinderPattern } from "./rendering/shape-renderers";
 
-type QRCodeMatrix = (number | boolean)[][];
-type DotType = string;
-type EyeFrameType = string;
-type EyeBallType = string;
+import { QRCodeRendererProps, QRCodeMatrix } from "@/types/qr";
 
 const isFinderPattern = (x: number, y: number, size: number) =>
   (x < 7 && y < 7) || (x > size - 8 && y < 7) || (x < 7 && y > size - 8);
@@ -22,35 +19,19 @@ const isDarkAt = (matrix: QRCodeMatrix, x: number, y: number, size: number, logo
   return true;
 };
 
-interface QRCodeRendererProps {
-  matrix: QRCodeMatrix;
-  size?: number;
-  svgRef: React.RefObject<SVGSVGElement | null>;
-  dotType?: DotType;
-  eyeFrame?: EyeFrameType;
-  eyeBall?: EyeBallType;
-  logoUrl?: string | null;
-  bodyColor?: string;
-  eyeColor?: string;
-  bgColor?: string;
-  logoSizeRatio?: number;
-}
-
-const QRCodeRenderer: React.FC<QRCodeRendererProps> = ({
-  matrix = [],
-  size = 300,
-  svgRef = null,
-  dotType = "square",
-  eyeFrame = "square",
-  eyeBall = "square",
-  logoUrl = null,
-  bodyColor = "#000000",
-  eyeColor = "#000000",
-  bgColor = "transparent",
-  logoSizeRatio = 0.15,
-}) => {
+const QRCodeRenderer: React.FC<QRCodeRendererProps> = ({ matrix = [], size = 300, svgRef = null, design }) => {
+  const {
+    dotType = "square",
+    eyeFrame = "square",
+    eyeBall = "square",
+    logo = null,
+    bodyColor = "#000000",
+    eyeColor = "#000000",
+    bgColor = "transparent",
+    logoSizeRatio = 0.15,
+  } = design;
   const gridSize = matrix.length;
-  const logoBlockSize = logoUrl ? Math.floor(gridSize * logoSizeRatio) + 2 : 0;
+  const logoBlockSize = logo ? Math.floor(gridSize * logoSizeRatio) + 2 : 0;
 
   const dataPath = useMemo(() => {
     if (!gridSize) return null;
@@ -102,9 +83,9 @@ const QRCodeRenderer: React.FC<QRCodeRendererProps> = ({
         <FinderPattern x={gridSize - 7} y={0} frameType={eyeFrame} ballType={eyeBall} color={eyeColor} position="tr" />
         <FinderPattern x={0} y={gridSize - 7} frameType={eyeFrame} ballType={eyeBall} color={eyeColor} position="bl" />
 
-        {logoUrl && (
+        {logo && (
           <image
-            href={logoUrl}
+            href={logo}
             x={gridSize / 2 - logoBlockSize / 2}
             y={gridSize / 2 - logoBlockSize / 2}
             width={logoBlockSize}
