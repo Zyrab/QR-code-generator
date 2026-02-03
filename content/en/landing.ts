@@ -1,28 +1,28 @@
 import { ActionKey } from "@/lib/actions";
-import { Label } from "@radix-ui/react-label";
-import { title } from "process";
+
 export const landing = {
   title:{
-    titile:"Free QR Code Generator, No Login, No Expiration",
+    title:"Free QR Code Generator, No Login, No Expiration",
     subtitle:"Generate static QR codes for URLs instantly. Download, print, and use them forever."
   },
   whatIsQr: {
-    titile: "What Is a QR Code?",
+    title: "What Is a QR Code?",
     subtitle: [
       "A QR code is a type of barcode that opens a link when scanned with a phone camera.  It's commonly used to share websites, videos, menus, forms, and contact pages. especially on printed materials.",
       "Unlike short links, QR codes work instantly and don't require typing.",
     ],
+    img:"scanning-qr"
   },
   staticVsDynamic: {
-    titile: "Static vs Dynamic QR Codes",
+    title: "Static vs Dynamic QR Codes",
     content:[
       {
-        titile:"Static QR Codes (Free)",
+        title:"Static QR Codes (Free)",
         items:["The link is embedded directly in the QR code","Never expire","Work offline after creation","Best for printing"],
         footer:"This is what you generate for free on this page."
       },
       {
-        titile:"Dynamic QR Codes (Paid)",
+        title:"Dynamic QR Codes (Paid)",
         items:["The QR code points to a redirect","The destination can be changed later","Requires a server to stay active","Useful for campaigns and tracking"],
         footer:"Useful when you need to change links after printing."
       },
@@ -31,7 +31,7 @@ export const landing = {
       "Many “free” QR generators use dynamic QR codes by default, which stop working unless you pay. This tool gives you static QR codes upfront, with no hidden expiration.",
   },
   unsure: {
-    titile: "Not sure which one you need?",
+    title: "Not sure which one you need?",
     subtitle: "Start with a free static QR code, upgrade only if you need more control.",
     button:{ label: "Generate a free QR code", action:"scroll_to_generator" satisfies ActionKey } as const
   },
@@ -41,10 +41,10 @@ export const landing = {
     images:[],
     notice:"All examples are static QR codes with no expiration.",
     content:[
-      {title:"Custom shapes",subtitle:"Start with a free static QR code, upgrade only if you need more control."},
-      {title:"Brand colors",subtitle:"Match your brand while keeping strong contrast for reliable scanning."},
-      {title:"Logo support",subtitle:"Add your logo in the center, optional background removal included."},
-      {title:"Print-ready output",subtitle:"Sharp, high-resolution QR codes suitable for print and digital use."},
+      {title:"Custom shapes",subtitle:"Start with a free static QR code, upgrade only if you need more control.",img:"custum-shapes"},
+      {title:"Brand colors",subtitle:"Match your brand while keeping strong contrast for reliable scanning.",img:"custumize-colors"},
+      {title:"Logo support",subtitle:"Add your logo in the center, optional background removal included.",img:"logo-support"},
+      {title:"Print-ready output",subtitle:"Sharp, high-resolution QR codes suitable for print and digital use.",img:"high-quality-export"},
     ],
     footer:"The generator prevents combinations that reduce scannability."
   },
@@ -116,6 +116,7 @@ export const landing = {
   why:{
     title:"Why This QR Code Generator Exists",
     subtitle:["Many QR code tools advertise “free” but rely on expiring links or hidden restrictions. This project was built to offer a simple and honest alternative.","Free static QR codes should stay free.  Paid features should be clear and optional."],
+    img:"others-vs-us",
     notice:"No tricks. No forced sign-ups. No surprises."
   }
 };
