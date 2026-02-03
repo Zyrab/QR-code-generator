@@ -3,32 +3,29 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// 1. Define variants using cva
 const cardVariants = cva(
-  "bg-card text-card-foreground border border-border shadow-sm flex flex-col overflow-hidden transition-all",
+  "bg-card text-card-foreground border border-border shadow-sm flex flex-col gap-4 overflow-hidden transition-all",
   {
     variants: {
-      // 2. Add a 'width' variant to control size
       width: {
         xs: "w-full md:max-w-xs",
         sm: "w-full md:max-w-sm",
-        md: "w-full max-w-md", // Approx 448px
-        lg: "w-full max-w-lg", // Approx 512px
-        xl: "w-full max-w-xl", // Approx 576px
-        "2xl": "w-full max-w-2xl", // Approx 672px (Twice as large)
-        full: "w-full", // Fills parent
-        auto: "w-auto max-w-none", // Intrinsic width
+        md: "w-full max-w-md",
+        lg: "w-full max-w-lg",
+        xl: "w-full max-w-xl",
+        "2xl": "w-full max-w-2xl",
+        full: "w-full",
+        auto: "w-auto max-w-none",
       },
-      // 3. Add a 'size' variant for padding/spacing
       size: {
-        default: "p-8  rounded-xl", // Matches your Auth Card style
+        default: "p-8  rounded-xl",
         sm: "p-4 rounded-lg ",
         none: "p-0 rounded-none",
       },
     },
     defaultVariants: {
-      width: "sm", // Default to small
-      size: "default", // Default to standard padding
+      width: "sm",
+      size: "default",
     },
   },
 );

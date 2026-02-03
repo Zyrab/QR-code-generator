@@ -50,7 +50,7 @@ export function FramePreview({ type }: { type: string }) {
 export function BallPreview({ type }: { type: string }) {
   const Ball = BallRenderers[type] || BallRenderers.square;
   return (
-    <svg viewBox="0 0 7 7" className="w-full h-full p-1 text-foreground">
+    <svg viewBox="0 0 7 7" className="w-full h-full p-1 text-foreground scale-200">
       <Ball color={"currentColor"} />
     </svg>
   );

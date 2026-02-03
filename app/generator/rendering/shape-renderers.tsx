@@ -1,15 +1,29 @@
 import { QRCodeMatrix } from "@/types/qr";
 
+interface Neighbors {
+  top: boolean | number;
+  bottom: boolean | number;
+  left: boolean | number;
+  right: boolean | number;
+  // Optional diagonals for "Extra" smooth shapes
+  topLeft?: boolean | number;
+  topRight?: boolean | number;
+  bottomLeft?: boolean | number;
+  bottomRight?: boolean | number;
+}
+
 interface ShapeProps {
   x: number;
   y: number;
   size: number;
   color: string;
   matrix?: QRCodeMatrix;
-  neighbors?: { top: number | boolean; bottom: number | boolean; left: number | boolean; right: number | boolean };
+  neighbors?: Neighbors;
 }
-const R = 0.55; // visually > 50%
-const O = 0.03; // overlap (removes seams)
+const G = 0.1; // Gap size
+const O = 0.04; // Overlap size (to prevent seams)
+const S = 1 - 2 * G;
+const R = S / 2; // Radius for perfect circles
 
 export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
   square: ({ x, y, color }) => <rect x={x} y={y} width={1} height={1} fill={color} shapeRendering="crispEdges" />,
@@ -24,18 +38,16 @@ export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
   blob: ({ x, y, color }) => <circle cx={x + 0.5} cy={y + 0.5} r={0.5} fill={color} />,
   fluid: ({ x, y, color, neighbors }) => {
     const { top, bottom, left, right } = neighbors || {};
-    const r = 0.5;
-    const o = 0.02; // overlap amount (critical)
 
-    const tl = !top && !left ? r : 0;
-    const tr = !top && !right ? r : 0;
-    const bl = !bottom && !left ? r : 0;
-    const br = !bottom && !right ? r : 0;
+    const tl = !top && !left ? R : 0;
+    const tr = !top && !right ? R : 0;
+    const bl = !bottom && !left ? R : 0;
+    const br = !bottom && !right ? R : 0;
 
-    const x0 = x - (left ? o : 0);
-    const y0 = y - (top ? o : 0);
-    const x1 = x + 1 + (right ? o : 0);
-    const y1 = y + 1 + (bottom ? o : 0);
+    const x0 = x - (left ? O : 0);
+    const y0 = y - (top ? O : 0);
+    const x1 = x + 1 + (right ? O : 0);
+    const y1 = y + 1 + (bottom ? O : 0);
 
     let d = `M ${x0 + tl},${y0}`;
 
@@ -63,51 +75,58 @@ export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
   blobH: ({ x, y, color, neighbors }) => {
     const { left, right } = neighbors || {};
 
-    const l = left ? 0 : R;
-    const r = right ? 0 : R;
+    const rL = left ? 0 : R;
+    const rR = right ? 0 : R;
 
-    const x0 = x - (left ? O : 0);
-    const x1 = x + 1 + (right ? O : 0);
-    const y0 = y - O;
-    const y1 = y + 1 + O;
+    // Use Overlap if neighbor exists, Gap if not
+    const x0 = x + (left ? -O : G);
+    const x1 = x + 1 + (right ? O : -G);
+
+    // Y is always gapped for Horizontal Blobs
+    const y0 = y + G;
+    const y1 = y + 1 - G;
 
     const d = `
-    M ${x0 + l},${y0}
-    L ${x1 - r},${y0}
-    A ${r} ${r} 0 0 1 ${x1},${y0 + r}
-    L ${x1},${y1 - r}
-    A ${r} ${r} 0 0 1 ${x1 - r},${y1}
-    L ${x0 + l},${y1}
-    A ${l} ${l} 0 0 1 ${x0},${y1 - l}
-    L ${x0},${y0 + l}
-    A ${l} ${l} 0 0 1 ${x0 + l},${y0}
-    Z
-  `;
+      M ${x0 + rL},${y0}
+      H ${x1 - rR}
+      A ${rR} ${rR} 0 0 1 ${x1},${y0 + rR}
+      V ${y1 - rR}
+      A ${rR} ${rR} 0 0 1 ${x1 - rR},${y1}
+      H ${x0 + rL}
+      A ${rL} ${rL} 0 0 1 ${x0},${y1 - rL}
+      V ${y0 + rL}
+      A ${rL} ${rL} 0 0 1 ${x0 + rL},${y0}
+      Z
+    `;
 
     return <path d={d} fill={color} shapeRendering="geometricPrecision" />;
   },
+
   blobV: ({ x, y, color, neighbors }) => {
     const { top, bottom } = neighbors || {};
 
-    const t = top ? 0 : R;
-    const b = bottom ? 0 : R;
+    const rT = top ? 0 : R;
+    const rB = bottom ? 0 : R;
 
-    const y0 = y - (top ? O : 0);
-    const y1 = y + 1 + (bottom ? O : 0);
-    const x0 = x - O;
-    const x1 = x + 1 + O;
+    // X is always gapped for Vertical Blobs
+    const x0 = x + G;
+    const x1 = x + 1 - G;
+
+    // Use Overlap if neighbor exists, Gap if not
+    const y0 = y + (top ? -O : G);
+    const y1 = y + 1 + (bottom ? O : -G);
 
     const d = `
-    M ${x0},${y0 + t}
-    A ${t} ${t} 0 0 1 ${x0 + t},${y0}
-    L ${x1 - t},${y0}
-    A ${t} ${t} 0 0 1 ${x1},${y0 + t}
-    L ${x1},${y1 - b}
-    A ${b} ${b} 0 0 1 ${x1 - b},${y1}
-    L ${x0 + b},${y1}
-    A ${b} ${b} 0 0 1 ${x0},${y1 - b}
-    Z
-  `;
+      M ${x0 + rT},${y0}
+      A ${rT} ${rT} 0 0 1 ${x1},${y0 + rT}
+      V ${y1 - rB}
+      A ${rB} ${rB} 0 0 1 ${x1 - rB},${y1}
+      H ${x0 + rB}
+      A ${rB} ${rB} 0 0 1 ${x0},${y1 - rB}
+      V ${y0 + rT}
+      A ${rT} ${rT} 0 0 1 ${x0 + rT},${y0}
+      Z
+    `;
 
     return <path d={d} fill={color} shapeRendering="geometricPrecision" />;
   },
@@ -124,45 +143,30 @@ export const FrameRenderers: Record<string, React.FC<{ color: string }>> = {
 
   leaf: ({ color }) => (
     <path
-      d="M3.5 0.5 
-         L6.5 0.5 
-         L6.5 3.5 
-         A3 3 0 0 1 3.5 6.5
-         L0.5 6.5
-         L0.5 3.5
-         A3 3 0 0 1 3.5 0.5 Z"
+      d="M6.5 6.5V2c0-.8-.7-1.5-1.5-1.5H.5v4.5c0 .8.7 1.5 1.5 1.5h4.5Z"
       fill="none"
       stroke={color}
       strokeWidth={1}
     />
   ),
-
-  eye: ({ color }) => (
-    <path
-      d="M0.5 3.5 
-         C1.5 1.5 5.5 1.5 6.5 3.5
-         C5.5 5.5 1.5 5.5 0.5 3.5 Z"
-      fill="none"
-      stroke={color}
-      strokeWidth={1}
-    />
-  ),
-
   drop: ({ color }) => (
     <path
-      d="M3.5 0.5
-         C5.5 2.5 6.5 4 6.5 5
-         A3 3 0 0 1 0.5 5
-         C0.5 4 1.5 2.5 3.5 0.5 Z"
+      d="M6.5 6.5V2c0-.8-.7-1.5-1.5-1.5h-3C1.3.5.5 1.3.5 2v3c0 .8.7 1.5 1.5 1.5h4.5Z"
+      fill="none"
+      stroke={color}
+      strokeWidth={1}
+    />
+  ),
+  eye: ({ color }) => (
+    <path
+      d="M6.5 6.5V2c0-.25-.48-.7-.75-.75L.5.5l.75 5.25c.05.31.45.75.75.75h4.5Z"
       fill="none"
       stroke={color}
       strokeWidth={1}
     />
   ),
 
-  hex: ({ color }) => (
-    <path d="M3.5 0.5 L6.5 2.2 L6.5 4.8 L3.5 6.5 L0.5 4.8 L0.5 2.2 Z" fill="none" stroke={color} strokeWidth={1} />
-  ),
+  hex: ({ color }) => <path d="M6.5 6.5v-6h-4c-1.5 0-2 .5-2 2v4h6Z" fill="none" stroke={color} strokeWidth={1} />,
 };
 
 export const BallRenderers: Record<string, React.FC<{ color: string }>> = {
@@ -172,37 +176,16 @@ export const BallRenderers: Record<string, React.FC<{ color: string }>> = {
 
   soft: ({ color }) => <rect x={2} y={2} width={3} height={3} rx={1.2} ry={1.2} fill={color} />,
 
-  leaf: ({ color }) => (
-    <path
-      d="M3.5 2
-         L5 2
-         L5 3.5
-         A1.5 1.5 0 0 1 3.5 5
-         L2 5
-         L2 3.5
-         A1.5 1.5 0 0 1 3.5 2 Z"
-      fill={color}
-    />
-  ),
-
-  eye: ({ color }) => (
-    <>
-      <ellipse cx={3.5} cy={3.5} rx={1.6} ry={1.1} fill={color} />
-      <circle cx={3.5} cy={3.5} r={0.6} fill="white" />
-    </>
-  ),
+  leaf: ({ color }) => <path d="M5 5V2.75C5 2.375 4.625 2 4.25 2H2v2.25c0 .375.375.75.75.75H5Z" fill={color} />,
 
   drop: ({ color }) => (
-    <path
-      d="M3.5 2
-         C4.5 3.2 5 4 5 4.6
-         A1.5 1.5 0 0 1 2 4.6
-         C2 4 2.5 3.2 3.5 2 Z"
-      fill={color}
-    />
+    <path d="M5 5V2.75C5 2.375 4.625 2 4.25 2h-1.5c-.375 0-.75.375-.75.75v1.5c0 .375.375.75.75.75H5Z" fill={color} />
+  ),
+  eye: ({ color }) => (
+    <path d="M5 5V2.75c0-.125-.24-.35-.375-.375L2 2l.375 2.625C2.4 4.78 2.6 5 2.75 5H5Z" fill={color} />
   ),
 
-  hex: ({ color }) => <polygon points="3.5,2 5,2.8 5,4.2 3.5,5 2,4.2 2,2.8" fill={color} />,
+  hex: ({ color }) => <path d="M5 5V2H3c-.75 0-1 .25-1 1v2h3Z" fill={color} />,
 };
 const FINDER_ROTATION: Record<"tl" | "tr" | "bl", number> = {
   tl: 0,

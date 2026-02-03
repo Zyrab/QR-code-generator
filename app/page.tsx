@@ -10,6 +10,8 @@ import ExamplesSection from "@/components/views/examples-section";
 import { getLocale } from "@/content/getLocale";
 import { ActionKey, actions } from "@/lib/actions";
 import AccordionGroup from "@/components/elements/accordion-group";
+import Image from "next/image";
+import WhatIsQR from "@/components/views/what-is-qr";
 export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
   const generatorRef = useRef<HTMLDivElement>(null);
   const t = getLocale(locale, "landing");
@@ -24,19 +26,15 @@ export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
   return (
     <>
       <div ref={generatorRef}>
-        <Generator showHeader={true} />
+        <Generator header={t.title} />
       </div>
-      <Section bg="bg-muted">
-        <div>
-          <HeaderGroup header={t.whatIsQr.titile} subheading={t.whatIsQr.subtitle} />
-        </div>
-      </Section>
+      <WhatIsQR data={t.whatIsQr} />
       <Section>
-        <HeaderGroup header={t.staticVsDynamic.titile} />
+        <HeaderGroup header={t.staticVsDynamic.title} />
         <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.staticVsDynamic.description}</p>
       </Section>
       <Section>
-        <HeaderGroup header={t.unsure.titile} subheading={t.unsure.subtitle} />
+        <HeaderGroup header={t.unsure.title} subheading={t.unsure.subtitle} />
         <Button onClick={() => handleAction(t.unsure.button.action)} size="lg">
           {t.unsure.button.label}
         </Button>
@@ -53,6 +51,15 @@ export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
       </Section>
       <Section>
         <HeaderGroup header={t.why.title} subheading={t.why.subtitle} />
+        <div className="max-w-xl w-full relative aspect-video">
+          <Image
+            src={`/images/${t.why.img}.webp`}
+            alt={t.why.title}
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, 600px"
+          />
+        </div>
         <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.why.notice}</p>
       </Section>
     </>

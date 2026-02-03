@@ -31,7 +31,7 @@ function renderPreview(type: string, item: string) {
 
 export default function Radios({ label, value, onValueChange, type, values, shape, size, className }: RadiosProps) {
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("flex flex-col items-start gap-0.5", className)}>
       {label && <Label>{label}</Label>}
 
       <RadioGroup value={value} onValueChange={onValueChange}>

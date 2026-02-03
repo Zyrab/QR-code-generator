@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { Loader2, Download, Save } from "lucide-react";
 
-// Components
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -16,8 +15,6 @@ import UploadLogo from "./upload-logo";
 import QRCodeRenderer from "./renderer";
 import AdSpace from "@/components/ui/ad-space";
 
-// Logic & Hooks
-import { saveToDashboard } from "@/lib/firebase";
 import { resizeImage } from "@/lib/qr-utils";
 import { useQRCodeGenerator } from "@/hooks/use-qr-generator";
 import { useQRDownload } from "@/hooks/use-qr-download";
@@ -26,15 +23,21 @@ import { useQR } from "@/context/qr-context";
 import { QRData, QRContent } from "@/types/qr";
 import Designer from "./designer";
 
-export default function Generator({ showHeader = false }: { showHeader: boolean }) {
+type HeaderType = {
+  header: {
+    title?: string;
+    subtitle?: string;
+  };
+};
+export default function Generator({ header }: HeaderType) {
   const { user } = useAuth();
 
-  // States
   const [downloadSize, setDownloadSize] = useState(2000);
   const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg" | "svg">("png");
+
   const isEditing = useRef<boolean>(false);
-  // Reference to the SVG for downloading
   const svgRef = useRef<SVGSVGElement | null>(null);
+
   const [qrData, setQrData] = useState<QRData>({
     name: "",
     content: {
@@ -64,12 +67,12 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
       const data = getQrById(id);
       if (data) setQrData(data);
       isEditing.current = true;
+      if (data?.name) setDraftName(data.name);
+      if (data?.content) setDraftContent(data.content);
     }
   }, [id, getQrById]);
 
   const debouncedUpdate = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // later
 
   useEffect(() => {
     if (debouncedUpdate.current) {
@@ -81,13 +84,12 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
         content: draftContent,
         name: draftName,
       }));
-    }, 300); // wait 300ms after last keystroke
+    }, 300);
   }, [draftContent, draftName]);
 
   const { matrix } = useQRCodeGenerator(qrData.content, Boolean(qrData.design.logo));
   const { downloadQrCode, isDownloading } = useQRDownload();
 
-  // Handlers
   const handleDownload = () => {
     if (!isContentFilled) return;
     const fileName = qrData.name || "qr-code";
@@ -102,7 +104,6 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
         return;
       }
       try {
-        // Ensure this resizes to small dimensions (e.g. 150x150) for DB safety
         const resizedBase64 = await resizeImage(file);
         setQrData((prev) => ({
           ...prev,
@@ -139,18 +140,11 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
     wifi: (content) => (content.type === "wifi" ? content.ssid.trim() !== "" || content.password.trim() !== "" : false),
   };
 
-  // Determine if there is anything typed
   const isContentFilled = contentCheckers[qrData.content.type](qrData.content);
 
   return (
     <Section>
-      {showHeader && (
-        <HeaderGroup
-          tag="h1"
-          header="Free QR Code Generator, No Login, No Expiration"
-          subheading={"Generate static QR codes for URLs instantly. Download, print, and use them forever."}
-        />
-      )}
+      {header ? <HeaderGroup tag="h1" header={header.title} subheading={header.subtitle} /> : null}
 
       <div className="flex flex-col gap-4 w-full items-center md:items-stretch md:justify-center md:flex-row">
         <Card width="2xl">
@@ -160,14 +154,12 @@ export default function Generator({ showHeader = false }: { showHeader: boolean 
             onContentChange={onContentChange}
             onNameChange={onNameChange}
           />
-
           <Designer design={qrData.design} onDesignChange={onDesignChange} />
-
           <UploadLogo logo={qrData.design.logo} setQrData={setQrData} handleImageUpload={handleImageUpload} />
         </Card>
         <Card width="sm">
           <div
-            className="aspect-square flex items-center justify-center rounded-lg border border-border relative overflow-hidden transition-colors duration-300"
+            className="aspect-square flex relative overflow-hidden transition-colors duration-300"
             style={{ backgroundColor: qrData.design.bgColor === "transparent" ? "#fff" : qrData.design.bgColor }}
           >
             {!isContentFilled && (
