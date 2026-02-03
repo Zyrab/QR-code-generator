@@ -5,7 +5,6 @@ interface Neighbors {
   bottom: boolean | number;
   left: boolean | number;
   right: boolean | number;
-  // Optional diagonals for "Extra" smooth shapes
   topLeft?: boolean | number;
   topRight?: boolean | number;
   bottomLeft?: boolean | number;
@@ -21,14 +20,19 @@ interface ShapeProps {
   neighbors?: Neighbors;
 }
 const G = 0.1; // Gap size
-const O = 0.04; // Overlap size (to prevent seams)
+const O = 0.03; // Overlap size (to prevent seams)
 const S = 1 - 2 * G;
 const R = S / 2; // Radius for perfect circles
 
 export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
   square: ({ x, y, color }) => <rect x={x} y={y} width={1} height={1} fill={color} shapeRendering="crispEdges" />,
   softSquare: ({ x, y, color }) => <rect x={x} y={y} width={1} height={1} rx={0.18} ry={0.18} fill={color} />,
-  circle: ({ x, y, color }) => <circle cx={x + 0.5} cy={y + 0.5} r={0.45} fill={color} />,
+  circle: ({ x, y, color }) => <circle cx={x + 0.5} cy={y + 0.5} r={0.48} fill={color} />,
+  dot: ({ x, y, color }) => <circle cx={x + 0.5} cy={y + 0.5} r={0.35} fill={color} />,
+  diamond: ({ x, y, color }) => {
+    const d = `M ${x + 0.5},${y + G} L ${x + 1 - G},${y + 0.5} L ${x + 0.5},${y + 1 - G} L ${x + G},${y + 0.5} Z`;
+    return <path d={d} fill={color} />;
+  },
   pill: ({ x, y, color, neighbors }) => {
     const { left, right } = neighbors || {};
     const rx = left || right ? 0.5 : 0.25;
@@ -78,11 +82,9 @@ export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
     const rL = left ? 0 : R;
     const rR = right ? 0 : R;
 
-    // Use Overlap if neighbor exists, Gap if not
     const x0 = x + (left ? -O : G);
     const x1 = x + 1 + (right ? O : -G);
 
-    // Y is always gapped for Horizontal Blobs
     const y0 = y + G;
     const y1 = y + 1 - G;
 
@@ -108,11 +110,9 @@ export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
     const rT = top ? 0 : R;
     const rB = bottom ? 0 : R;
 
-    // X is always gapped for Vertical Blobs
     const x0 = x + G;
     const x1 = x + 1 - G;
 
-    // Use Overlap if neighbor exists, Gap if not
     const y0 = y + (top ? -O : G);
     const y1 = y + 1 + (bottom ? O : -G);
 
@@ -129,6 +129,35 @@ export const ShapeRenderers: Record<string, React.FC<ShapeProps>> = {
     `;
 
     return <path d={d} fill={color} shapeRendering="geometricPrecision" />;
+  },
+
+  sharp: ({ x, y, color, neighbors }) => {
+    const { top, bottom, left, right } = neighbors || {};
+    const hvCount = [top, bottom, left, right].filter(Boolean).length;
+    const x0 = x,
+      y0 = y,
+      x1 = x + 1,
+      y1 = y + 1;
+    const cx = x + 0.5,
+      cy = y + 0.5;
+
+    if (hvCount === 0) {
+      return <path d={`M ${cx},${y0} L ${x1},${cy} L ${cx},${y1} L ${x0},${cy} Z`} fill={color} />;
+    }
+
+    if (hvCount === 1) {
+      if (left) return <path d={`M ${x0 - O},${y0} L ${x0 - O},${y1} L ${x1},${cy} Z`} fill={color} />;
+      if (right) return <path d={`M ${x1 + O},${y0} L ${x1 + O},${y1} L ${x0},${cy} Z`} fill={color} />;
+      if (top) return <path d={`M ${x0},${y0 - O} L ${x1},${y0 - O} L ${cx},${y1} Z`} fill={color} />;
+      if (bottom) return <path d={`M ${x0},${y1 + O} L ${x1},${y1 + O} L ${cx},${y0} Z`} fill={color} />;
+    }
+
+    const nx0 = left ? x0 - O : x0;
+    const nx1 = right ? x1 + O : x1;
+    const ny0 = top ? y0 - O : y0;
+    const ny1 = bottom ? y1 + O : y1;
+
+    return <path d={`M ${nx0},${ny0} H ${nx1} V ${ny1} H ${nx0} Z`} fill={color} shapeRendering="crispEdges" />;
   },
 };
 

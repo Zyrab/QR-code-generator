@@ -8,15 +8,13 @@ export const bodyShapes = [
   "square",
   "softSquare",
   "circle",
+  "dot",
   "pill",
-  "blob",
   "fluid",
   "cutCorner",
   "blobH",
   "blobV",
-  // "extraFluid",
-  // "sharp",
-  // "leaf",
+  "sharp",
 ];
 export const frameShapes = ["square", "circle", "soft", "leaf", "eye", "drop", "hex"];
 export const ballhapes = ["square", "circle", "soft", "leaf", "eye", "drop", "hex"];

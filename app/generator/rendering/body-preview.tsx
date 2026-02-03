@@ -1,11 +1,10 @@
 import { ShapeRenderers, FrameRenderers, BallRenderers } from "./shape-renderers";
 export const PREVIEW_MATRIX = [
-  [1, 0, 1, 0, 1, 0], // isolated dots
-  [1, 1, 1, 0, 0, 0], // horizontal merge
-  [0, 0, 1, 0, 1, 1], // split interaction
-  [0, 1, 1, 1, 0, 0], // small cluster
-  [1, 0, 1, 0, 1, 0], // vertical hints
-  [1, 1, 0, 0, 1, 0],
+  [1, 0, 1, 0, 1],
+  [1, 1, 1, 0, 0],
+  [0, 0, 1, 0, 1],
+  [0, 1, 1, 1, 1],
+  [1, 0, 1, 0, 1],
 ];
 
 export function BodyPreview({ type }: { type: string }) {
@@ -17,7 +16,7 @@ export function BodyPreview({ type }: { type: string }) {
       viewBox={`0 0 ${size} ${size}`}
       shapeRendering="geometricPrecision"
       vectorEffect="non-scaling-stroke"
-      className="w-full h-full p-1 text-foreground"
+      className="w-full h-full text-foreground"
     >
       {matrix.map((row, y) =>
         row.map((val, x) => {

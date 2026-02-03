@@ -27,7 +27,7 @@ export const landing = {
         footer:"Useful when you need to change links after printing."
       },
     ],
-    description:
+    footer:
       "Many “free” QR generators use dynamic QR codes by default, which stop working unless you pay. This tool gives you static QR codes upfront, with no hidden expiration.",
   },
   unsure: {
@@ -73,10 +73,10 @@ export const landing = {
   usefullness:{
     title:"When Are Dynamic QR Codes Useful?",
     content:[
-      {title:"Updating a restaurant menu without reprinting",icon:"menu"},
-      {title:"Changing a campaign link after launch",icon:"ads_click"},
-      {title:"Redirecting users during limited-time promotions",icon:"percent_discount"},
-      {title:"Managing multiple locations from one QR code",icon:"add_location_alt"},
+      {title:"Update Menus Instantly",text:"Updating a restaurant menu without reprinting",icon:"utensils",color:"#E6D839"},
+      {title:"Modify campaing link",text:"Changing a campaign link after launch",icon:"unlink",color:"#E42929"},
+      {title:"Time-Limited Redirects",text:"Redirecting users during limited-time promotions",icon:"discount",color:"#1C8D00"},
+      {title:"Multi-Location managment",text:"Managing multiple locations from one QR code",icon:"alt_location",color:"#2288C7"},
     ],
     note:"If none of these apply, a free static QR code is usually enough."
   },

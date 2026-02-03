@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 interface HeaderGroupProps {
-  header: React.ReactNode;
+  header?: React.ReactNode;
   tag?: "h1" | "h2" | "h3" | "h4";
   subheading?: string | string[];
   children?: React.ReactNode;

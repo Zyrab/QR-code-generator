@@ -4,7 +4,7 @@ import { FinderPattern, ShapeRenderers } from "./rendering/shape-renderers";
 
 import { QRCodeRendererProps, QRCodeMatrix } from "@/types/qr";
 
-const NEIGHBOR_DEPENDENT_SHAPES = new Set(["fluid", "soft", "blobH", "blobV", "extraFluid"]);
+const NEIGHBOR_DEPENDENT_SHAPES = new Set(["fluid", "soft", "blobH", "blobV", "extraFluid", "sharp"]);
 
 const isFinderPattern = (x: number, y: number, size: number) =>
   (x < 7 && y < 7) || (x > size - 8 && y < 7) || (x < 7 && y > size - 8);

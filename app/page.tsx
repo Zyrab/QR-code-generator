@@ -12,6 +12,8 @@ import { ActionKey, actions } from "@/lib/actions";
 import AccordionGroup from "@/components/elements/accordion-group";
 import Image from "next/image";
 import WhatIsQR from "@/components/views/what-is-qr";
+import StaticVsDinamicSection from "@/components/views/static-vs-dicamic";
+import WhenDinmic from "@/components/views/when-dinamic";
 export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
   const generatorRef = useRef<HTMLDivElement>(null);
   const t = getLocale(locale, "landing");
@@ -29,10 +31,7 @@ export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
         <Generator header={t.title} />
       </div>
       <WhatIsQR data={t.whatIsQr} />
-      <Section>
-        <HeaderGroup header={t.staticVsDynamic.title} />
-        <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.staticVsDynamic.description}</p>
-      </Section>
+      <StaticVsDinamicSection t={t.staticVsDynamic} />
       <Section>
         <HeaderGroup header={t.unsure.title} subheading={t.unsure.subtitle} />
         <Button onClick={() => handleAction(t.unsure.button.action)} size="lg">
@@ -41,10 +40,7 @@ export default function Landing({ locale = "en" }: { locale?: "en" | "ka" }) {
       </Section>
       <ExamplesSection t={t.examples} />
       <PricingSection t={t.pricing} onAction={handleAction} />
-      <Section bg="bg-muted">
-        <HeaderGroup header={t.usefullness.title} />
-        <p className="text-foreground text-md space-y-2 max-w-240 text-center">{t.usefullness.note}</p>
-      </Section>
+      <WhenDinmic t={t.usefullness} />
       <Section>
         <HeaderGroup header={t.faq.title} />
         <AccordionGroup items={t.faq.content} />
