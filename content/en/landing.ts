@@ -38,7 +38,6 @@ export const landing = {
   examples:{
     title:"High-Quality QR Codes You Can Customize",
     subtitle:"A QR code should scan instantly and still look good when printed. Customize colors, shapes, and logos without breaking readability.",
-    images:[],
     notice:"All examples are static QR codes with no expiration.",
     content:[
       {title:"Custom shapes",subtitle:"Start with a free static QR code, upgrade only if you need more control.",img:"custum-shapes"},

@@ -46,7 +46,7 @@ export default function Header() {
             <QrCode size={24} />
           </div>
           <span className="font-bold text-xl tracking-tight text-foreground transition-colors group-hover:text-primary">
-            True QR
+            At QR
           </span>
         </Link>
 

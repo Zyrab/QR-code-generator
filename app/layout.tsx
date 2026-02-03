@@ -26,7 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
             <footer className="bg-muted/30 border-t border-border py-8 mt-12">
               <div className="container mx-auto px-4 text-center">
-                <p className="text-sm text-muted-foreground">© 2024 QR Studio. Built for simplicity.</p>
+                <p className="text-sm text-muted-foreground">© 2024 At QR. Built for simplicity.</p>
               </div>
             </footer>
           </QRProvider>

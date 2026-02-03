@@ -1,69 +1,42 @@
 import * as React from "react";
 import { InputGroup } from "@/components/ui/input";
-import { Link, Type } from "lucide-react"; // optional icons
 import { QRContent } from "@/types/qr";
+import Icons from "@/components/elements/icons";
 
 interface InputAreaProps {
   content: QRContent;
   name: string;
   onContentChange: (field: string, value: string) => void;
   onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  t: any;
 }
 
-export default function InputArea({ content, name, onContentChange, onNameChange }: InputAreaProps) {
+export default function InputArea({ content, name, onContentChange, onNameChange, t }: InputAreaProps) {
+  const activeFields = INPUT_FIELDS[content.type as keyof typeof INPUT_FIELDS] || [];
   return (
-    <div className="w-full flex flex-col gap-4 md:flex-row flex-wrap">
-      <InputGroup
-        label="QR Name (optional)"
-        value={name}
-        onChange={(e) => onNameChange(e)}
-        placeholder="Only used if you sign in and save"
-        className="flex-1"
-      />
-
-      {/* Show fields based on QR type */}
-      {content.type === "url" && (
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+      <InputGroup label={t.name.text} value={name} onChange={(e) => onNameChange(e)} placeholder={t.name.placeholder} />
+      {activeFields.map(({ key, icon, requred, type }, i) => (
         <InputGroup
-          label="URL"
-          value={content.url}
-          onChange={(e) => onContentChange("url", e.target.value)}
-          placeholder="https://example.com"
-          startIcon={<Link size={16} />}
-          required
-          className="flex-1"
+          key={i}
+          label={t[key].text}
+          value={(content as any)[key] || ""}
+          onChange={(e) => onContentChange(key, e.target.value)}
+          placeholder={t[key].placeholder}
+          startIcon={<Icons name={icon} size={16} />}
+          required={requred}
         />
-      )}
-
-      {content.type === "text" && (
-        <InputGroup
-          label="Text"
-          value={content.text}
-          onChange={(e) => onContentChange("text", e.target.value)}
-          placeholder="Enter your text here"
-          required
-          className="flex-1"
-        />
-      )}
-
-      {content.type === "wifi" && (
-        <>
-          <InputGroup
-            label="Wi-Fi SSID"
-            value={content.ssid}
-            onChange={(e) => onContentChange("ssid", e.target.value)}
-            placeholder="Network Name"
-            required
-            className="flex-1"
-          />
-          <InputGroup
-            label="Wi-Fi Password"
-            value={content.password}
-            onChange={(e) => onContentChange("password", e.target.value)}
-            placeholder="Password"
-            className="flex-1"
-          />
-        </>
-      )}
+      ))}
     </div>
   );
 }
+
+export const INPUT_FIELDS = {
+  url: [{ key: "url", icon: "link", type: "text", requred: true }],
+  text: [{ key: "text", icon: "type", type: "text", requred: true }],
+  wifi: [
+    { key: "ssid", icon: "wifi", type: "text", requred: true },
+    { key: "password", icon: "key_round", type: "text", requred: false },
+  ],
+  // email: [ { key: "email", labelKey: "email.addr", ... }, { key: "subject", ... } ]
+};

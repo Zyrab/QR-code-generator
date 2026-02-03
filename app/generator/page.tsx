@@ -22,16 +22,18 @@ import { RadioGroupItem, RadioGroup } from "@/components/ui/radio";
 import { useQR } from "@/context/qr-context";
 import { QRData, QRContent } from "@/types/qr";
 import Designer from "./designer";
+import { getLocale } from "@/content/getLocale";
 
 type HeaderType = {
   header: {
     title?: string;
     subtitle?: string;
   };
+  locale?: "en" | "ka";
 };
-export default function Generator({ header }: HeaderType) {
+export default function Generator({ header, locale = "en" }: HeaderType) {
   const { user } = useAuth();
-
+  const t = getLocale(locale, "generator");
   const [downloadSize, setDownloadSize] = useState(2000);
   const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg" | "svg">("png");
 
@@ -148,14 +150,21 @@ export default function Generator({ header }: HeaderType) {
 
       <div className="flex flex-col gap-4 w-full items-center md:items-stretch md:justify-center md:flex-row">
         <Card width="2xl">
+          <h2 className="font-bold text-sm">{t.title}</h2>
           <InputArea
             content={draftContent}
             name={draftName}
             onContentChange={onContentChange}
             onNameChange={onNameChange}
+            t={t.inputs}
           />
-          <Designer design={qrData.design} onDesignChange={onDesignChange} />
-          <UploadLogo logo={qrData.design.logo} setQrData={setQrData} handleImageUpload={handleImageUpload} />
+          <Designer design={qrData.design} onDesignChange={onDesignChange} t={t.designer} />
+          <UploadLogo
+            logo={qrData.design.logo}
+            setQrData={setQrData}
+            handleImageUpload={handleImageUpload}
+            t={t.logo}
+          />
         </Card>
         <Card width="sm">
           <div
@@ -178,17 +187,27 @@ export default function Generator({ header }: HeaderType) {
             onValueChange={(val: any) => setDownloadSize(val[0])}
             min={500}
             max={4000}
+            minLabel="Low Q"
+            maxLabel="High Q"
             step={100}
           />
 
           <RadioGroup
-            className="flex ga-4 items-center p-4"
+            className="flex gap-1 bg-muted/30 p-1 rounded-lg justify-between"
             value={downloadFormat}
             onValueChange={(val: any) => setDownloadFormat(val)}
           >
-            <RadioGroupItem value="png">PNG</RadioGroupItem>
-            <RadioGroupItem value="jpeg">JPG</RadioGroupItem>
-            <RadioGroupItem value="svg">SVG</RadioGroupItem>
+            {["png", "jpeg", "svg"].map((fmt) => (
+              <div key={fmt} className="flex-1">
+                <RadioGroupItem value={fmt} id={fmt} className="peer sr-only" />
+                <label
+                  htmlFor={fmt}
+                  className="flex items-center justify-center w-full px-2 py-1.5 text-xs font-medium rounded-md cursor-pointer transition-all peer-data-[state=checked]:bg-background peer-data-[state=checked]:text-primary peer-data-[state=checked]:shadow-sm text-muted-foreground hover:text-foreground uppercase"
+                >
+                  {fmt}
+                </label>
+              </div>
+            ))}
           </RadioGroup>
 
           <Button onClick={handleDownload} disabled={!isContentFilled || isDownloading} variant="default">
@@ -202,6 +221,7 @@ export default function Generator({ header }: HeaderType) {
           </Button>
         </Card>
       </div>
+      <p className="text-muted-foreground text-sm max-w-240 text-center">{t.footer}</p>
       <AdSpace />
     </Section>
   );

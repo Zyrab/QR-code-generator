@@ -1,29 +1,23 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/input"; // Using your custom Label
-import { cn } from "@/lib/utils";
 import { X, ImageIcon, Upload } from "lucide-react";
-import { LogoStyle } from "@/lib/qr-utils";
-
-import Radios from "@/components/elements/radio-group";
-// Define the interface for the parent's form data
-// We use a partial or specific pick here to ensure loose coupling
-
 interface UploadLogoProps {
   logo?: string | null;
   setQrData: (data: any) => void;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  t: any;
 }
 
-export default function UploadLogo({ logo, setQrData, handleImageUpload }: UploadLogoProps) {
+export default function UploadLogo({ logo, setQrData, handleImageUpload, t }: UploadLogoProps) {
   return (
     <div>
-      <Label>Logo</Label>
+      <Label>{t.title}</Label>
       <div className="flex flex-col md:flex-row gap-4 items-center">
         <div>
           <Button variant="outline" className="relative">
             <Upload />
-            {logo ? "Change Logo" : "Upload Logo"}
+            {logo ? t.upload : t.change}
             <input
               type="file"
               className="absolute inset-0 opacity-0 cursor-pointer"
@@ -31,12 +25,11 @@ export default function UploadLogo({ logo, setQrData, handleImageUpload }: Uploa
               onChange={handleImageUpload}
             />
           </Button>
-          <p className="text-xs text-muted-foreground">Max 2MB. Transparent PNG recommended.</p>
+          <p className="text-xs text-muted-foreground">{t.note}</p>
         </div>
 
         {logo ? (
           <div className="relative group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo} alt="Logo" className="h-12 w-12 object-contain bg-white rounded border border-border" />
             <button
               onClick={() => setQrData((prev: any) => ({ ...prev, design: { ...prev.design, logo: null } }))}

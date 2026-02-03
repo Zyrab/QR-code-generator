@@ -24,8 +24,10 @@ const bgColors = ["#ffffff", "#f3f4f6", "#fef3c7", "#e0f2fe", "transparent"];
 interface DesignerProps {
   design: QRDesign;
   onDesignChange: (key: keyof QRDesign, value: any) => void;
+  t: any;
 }
-export default function Designer({ design, onDesignChange }: DesignerProps) {
+export default function Designer({ design, onDesignChange, t }: DesignerProps) {
+  const { body_p, body_c, eye_f, eye_b, eye_c, bg_c } = t;
   const {
     dotType,
     bodyColor = "#00000",
@@ -37,7 +39,7 @@ export default function Designer({ design, onDesignChange }: DesignerProps) {
   return (
     <>
       <Radios
-        label="Body Pattern"
+        label={body_p}
         type="body"
         value={dotType}
         onValueChange={(val) => onDesignChange("dotType", val)}
@@ -46,7 +48,7 @@ export default function Designer({ design, onDesignChange }: DesignerProps) {
       />
       <div className="flex flex-wrap gap-2 items-end">
         <Radios
-          label="Body Color"
+          label={body_c}
           type="color"
           value={bodyColor}
           onValueChange={(val) => onDesignChange("bodyColor", val)}
@@ -58,7 +60,7 @@ export default function Designer({ design, onDesignChange }: DesignerProps) {
 
       <div className="w-full flex flex-col gap-6 md:flex-row">
         <Radios
-          label="Eye Frame"
+          label={eye_f}
           type="frame"
           value={eyeFrame}
           onValueChange={(val) => onDesignChange("eyeFrame", val)}
@@ -66,7 +68,7 @@ export default function Designer({ design, onDesignChange }: DesignerProps) {
         />
 
         <Radios
-          label="Eye Ball"
+          label={eye_b}
           type="ball"
           value={eyeBall}
           onValueChange={(val) => onDesignChange("eyeBall", val)}
@@ -75,7 +77,7 @@ export default function Designer({ design, onDesignChange }: DesignerProps) {
       </div>
       <div className="flex flex-wrap gap-2 items-end">
         <Radios
-          label="Eye Color"
+          label={eye_c}
           type="color"
           value={eyeColor}
           onValueChange={(val) => onDesignChange("eyeColor", val)}
@@ -85,7 +87,7 @@ export default function Designer({ design, onDesignChange }: DesignerProps) {
         <ColorPicker value={eyeColor} onChange={(val) => onDesignChange("eyeColor", val)} />
       </div>
       <Radios
-        label="Background Color"
+        label={bg_c}
         type="color"
         value={bgColor}
         onValueChange={(val) => onDesignChange("bgColor", val)}
