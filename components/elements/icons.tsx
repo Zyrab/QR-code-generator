@@ -1,5 +1,19 @@
 import React from "react";
-import { BadgePercent, MapPinPlus, Unlink2, Utensils, LucideProps, Link, Type, Wifi, KeyRound } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  LayoutDashboard,
+  LogOut,
+  BadgePercent,
+  MapPinPlus,
+  Unlink2,
+  Utensils,
+  LucideProps,
+  Link,
+  Type,
+  Wifi,
+  KeyRound,
+} from "lucide-react";
 
 const ICON_MAP = {
   utensils: Utensils,
@@ -10,6 +24,10 @@ const ICON_MAP = {
   type: Type,
   wifi: Wifi,
   key_round: KeyRound,
+  sun: Sun,
+  moon: Moon,
+  dashboard: LayoutDashboard,
+  log_out: LogOut,
 } as const;
 
 type IconName = keyof typeof ICON_MAP;

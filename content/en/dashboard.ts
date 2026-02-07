@@ -1,6 +1,6 @@
 
 export const dashboard = {
-  title:"My Qr Codes",
+  title:"My QR Codes",
   subtitle:"Manage your saved QR codes.",
   cta:{label:"Create New", icon:"plus"},
   filter:["Newest First", "Oldest First", "Name (A-Z)"],
