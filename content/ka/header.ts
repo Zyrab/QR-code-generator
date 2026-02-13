@@ -4,5 +4,6 @@ export const header = {
   log_in:"შესვლა",
   log_out:"გამოსვლა",
   sign_up:"რეგისტრაცია",
-  dashboard:"დეშბორდი"
+  dashboard:"დეშბორდი",
+  manage_subs:"გადასახადების მართვა" 
 }
