@@ -15,6 +15,7 @@ import {
   serverTimestamp,
   Timestamp 
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 import { QRData } from '@/types/qr';
 import { UserData } from '@/types/user-data';
@@ -32,6 +33,7 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
+const functions = getFunctions(app, "europe-west3");
 
 export const loginGoogle = async () => {
   try {
@@ -134,4 +136,4 @@ export const fetchHistory = async (user: User | null) => {
   }
 };
 
-export { app, auth, db };
+export { app, auth, db, functions, httpsCallable };
