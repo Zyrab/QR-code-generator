@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
-import { fetchHistory, deleteQrCode as deleteQrCode, updateQrCode, saveToDashboard } from "@/lib/firebase";
+import { fetchHistory, deleteQrCode, updateQrCode, saveToDashboard } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
 import { QRDocument, QRData } from "@/types/qr";
