@@ -10,10 +10,20 @@ import LogoIcon from "./logo";
 import { logoutUser } from "@/lib/firebase";
 import { useAuth } from "@/context/auth-context";
 import { getLocale } from "@/content/getLocale";
-
+import { actions } from "@/lib/actions";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "../ui/dropdown-menu";
+import { Badge } from "../ui/badge";
 export default function Header({ locale = "en" }: { locale?: "en" | "ka" }) {
   const t = getLocale(locale, "header");
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
 
@@ -67,32 +77,64 @@ export default function Header({ locale = "en" }: { locale?: "en" | "ka" }) {
         </Link>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={handleThemeToggle} className="w-9 px-0">
+          <Button variant="ghost" size="icon" onClick={handleThemeToggle} className="">
             {darkMode ? <Icons name="sun" size={20} /> : <Icons name="moon" size={20} />}
           </Button>
 
           {user ? (
             <>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <Icons name="log_out" />
-                <span className="hidden md:block">{t.log_out}</span>
-              </Button>
               <Link href="/dashboard">
-                <Button size="sm">
+                <Button variant="ghost" size="sm">
                   <Icons name="dashboard" />
                   <span className="hidden md:block">{t.dashboard}</span>
                 </Button>
               </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <Icons name="user" size="38" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>{userData?.email}</DropdownMenuLabel>
+                    <DropdownMenuItem onSelect={() => router.push("/pricing")}>
+                      <Icons
+                        name="badge_check"
+                        color={userData?.plan === "paid" ? "green" : userData?.plan === "trial" ? "#8D3BF8" : undefined}
+                      />
+                      {userData?.plan?.toUpperCase()}
+                    </DropdownMenuItem>
+                    {userData?.plan === "paid" && (
+                      <DropdownMenuItem onSelect={() => actions.manage_subscription({})}>
+                        <Icons name="credit_card" />
+                        {t.manage_subs}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
+                      <Icons name="log_out" />
+                      {t.log_out}
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
               <Link href="/auth?mode=login">
                 <Button variant="ghost" size="sm">
-                  {t.log_in}
+                  <Icons name="log_in" />
+                  <span className="hidden md:block">{t.log_in}</span>
                 </Button>
               </Link>
               <Link href="/auth?mode=register">
-                <Button size="sm">{t.sign_up}</Button>
+                <Button size="sm">
+                  <Icons name="user_plus" />
+                  <span className="hidden md:block">{t.sign_up}</span>
+                </Button>
               </Link>
             </>
           )}

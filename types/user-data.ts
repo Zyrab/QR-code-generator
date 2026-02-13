@@ -1,11 +1,15 @@
 import { Timestamp } from "firebase/firestore";
 
-export interface UserData {
-  email: string | null;
-  plan: "free" | "pro";
-  qrLimit: number | null; // null = unlimited
-  subscriptionStatus: "inactive" | "active" | "canceled" | "test";
+export type User = {
+  email: string;
+  plan: "free" | "trial" | "paid";
+  subscriptionStatus: "inactive" | "trialing" | "active";
   stripeCustomerId: string | null;
+  qrLimit: number;
+  dynamicQrLimit: number;
+  trialUsed: boolean;
+  trialStartedAt: Timestamp | null;
+  trialEndsAt: Timestamp | null;
   paidUntil: Timestamp | null;
   createdAt: Timestamp;
-}
+};

@@ -1,5 +1,5 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { startTrial, getMonthlyPro } from "./stripe-service";
+import { startTrial, getMonthlyPro,getCustumerPortalLink } from "./stripe-service";
 import type React from "react";
 
 export type ActionContext = {
@@ -48,6 +48,17 @@ export const actions = {
     try {
       setLoading?.(true);
       await getMonthlyPro();
+      // Note: getMonthlyPro handles the window.location.href redirect internally
+    } catch (error) {
+      // Error handling logic
+    } finally {
+      setLoading?.(false);
+    }
+  },
+  manage_subscription: async ({ setLoading }: ActionContext) => {
+    try {
+      setLoading?.(true);
+      await getCustumerPortalLink();
       // Note: getMonthlyPro handles the window.location.href redirect internally
     } catch (error) {
       // Error handling logic

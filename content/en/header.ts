@@ -4,5 +4,6 @@ export const header = {
   log_in:"Log In",
   log_out:"Log Out",
   sign_up:"Sign Up",
-  dashboard:"Dashboard"
+  dashboard:"Dashboard",
+  manage_subs:"Manage Subscription"
 }

@@ -4,6 +4,7 @@ import {
   Moon,
   LayoutDashboard,
   LogOut,
+  LogIn,
   BadgePercent,
   MapPinPlus,
   Unlink2,
@@ -13,6 +14,10 @@ import {
   Type,
   Wifi,
   KeyRound,
+  CircleUser,
+  CreditCard,
+  UserPlus,
+  BadgeCheck,
 } from "lucide-react";
 
 const ICON_MAP = {
@@ -28,6 +33,11 @@ const ICON_MAP = {
   moon: Moon,
   dashboard: LayoutDashboard,
   log_out: LogOut,
+  log_in: LogIn,
+  user_plus: UserPlus,
+  user: CircleUser,
+  credit_card: CreditCard,
+  badge_check: BadgeCheck,
 } as const;
 
 type IconName = keyof typeof ICON_MAP;
@@ -43,5 +53,5 @@ export default function Icons({ name, ...props }: IconsProps) {
     return null;
   }
 
-  return <IconComponent {...props} />;
+  return <IconComponent {...props} size="30" />;
 }
